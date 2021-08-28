@@ -1,0 +1,14 @@
+.participants-container {
+  max-height: 300px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.action {
+  margin-top: 5px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}

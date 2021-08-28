@@ -6,10 +6,15 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./seating-chart.component.css']
 })
 export class SeatingChartComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
+  ngOnInit(): void {}
 
-  ngOnInit(): void {
+  onStart(): void {
+    console.log('Start');
   }
 
+  onRotate(): void {
+    console.log('Rotate');
+  }
 }
