@@ -1,0 +1,53 @@
+<form [formGroup]="form" class="form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>New Person</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <div class="col-md-12">
+          <mat-form-field class="full-width">
+            <mat-label>First Name</mat-label>
+            <input formControlName="firstName" matInput />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <mat-form-field class="full-width">
+            <mat-label>Last Name</mat-label>
+            <input formControlName="lastName" matInput />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <mat-form-field class="full-width">
+            <mat-label>Age</mat-label>
+            <input formControlName="age" matInput />
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <mat-radio-group formControlName="gender" class="margin-left">
+            <mat-label>Gender</mat-label>
+            <mat-radio-button value="Male"> Male </mat-radio-button>
+            <mat-radio-button value="Female"> Female </mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button
+        [disabled]="!form.valid"
+        (click)="onSubmit()"
+        mat-raised-button
+        color="primary"
+      >
+        Save
+      </button>
+      <button (click)="cancel()" mat-button>Cancel</button>
+    </mat-card-actions>
+  </mat-card>
+</form>

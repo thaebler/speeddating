@@ -1,20 +1,23 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogModel
+} from '../confirm-dialog/confirm-dialog.component';
+import { ParticipantFormComponent } from '../participant-form/participant-form.component';
 
 export enum Gender {
-  Male = 'male',
-  Female = 'female'
+  Male = 'Male',
+  Female = 'Female'
 }
 export interface Participant {
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   gender: Gender;
   age: number;
-}
-export interface Action {
-  id: string;
-  text: string;
 }
 
 @Component({
@@ -22,39 +25,38 @@ export interface Action {
   templateUrl: './participants.component.html',
   styleUrls: ['./participants.component.css']
 })
-export class ParticipantsComponent implements OnInit {
-  participantList: Participant[] = [];
+export class ParticipantsComponent implements AfterViewInit {
   displayedColumns: string[] = [
     'select',
-    'firstname',
-    'lastname',
+    'firstName',
+    'lastName',
     'age',
     'gender'
   ];
-  dataSource = new MatTableDataSource<Participant>(this.participantList);
-  selection = new SelectionModel<Participant>(true, []);
-  actions: Action[] = [
-    {
-      id: 'copy',
-      text: 'Copy To Clipboard'
-    },
-    {
-      id: 'paste',
-      text: 'Paste From Excel'
-    },
-    {
-      id: 'add',
-      text: 'Add...'
-    },
-    {
-      id: 'delete',
-      text: 'Delete'
-    }
-  ];
+  dataSource = new MatTableDataSource<Participant>([]);
+  selection = new SelectionModel<Participant>(false, []);
 
-  constructor() {}
+  @ViewChild(MatSort)
+  sort!: MatSort;
 
-  ngOnInit(): void {}
+  constructor(public dialog: MatDialog) {}
+
+  get list(): Participant[] {
+    return this.dataSource.data;
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (
+      data: any,
+      sortHeaderId: string
+    ): string => {
+      if (typeof data[sortHeaderId] === 'string') {
+        return data[sortHeaderId].toLocaleLowerCase();
+      }
+      return data[sortHeaderId];
+    };
+  }
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
@@ -73,11 +75,115 @@ export class ParticipantsComponent implements OnInit {
     this.selection.select(...this.dataSource.data);
   }
 
-  onAction(action: Action) {
-    console.log(action);
+  hasSelection(): boolean {
+    return this.selection.selected.length > 0;
   }
 
-  isActionDisabled(action: Action): boolean {
-    return false;
+  hasSingleSelection(): boolean {
+    return this.selection.selected.length === 1;
+  }
+
+  isEmpty(): boolean {
+    return this.dataSource.data.length === 0;
+  }
+
+  genderColor(person: Participant): string {
+    if (person.gender === Gender.Male) {
+      return 'primary';
+    }
+    return 'accent';
+  }
+
+  add() {
+    const dialogRef = this.dialog.open(ParticipantFormComponent);
+
+    dialogRef.afterClosed().subscribe((newPerson) => {
+      if (newPerson) {
+        this.dataSource.data = [...this.dataSource.data, newPerson];
+      }
+    });
+  }
+
+  edit() {
+    const selection = this.selection.selected[0];
+    const dialogRef = this.dialog.open(ParticipantFormComponent, {
+      data: selection
+    });
+
+    dialogRef.afterClosed().subscribe((modifiedPerson) => {
+      if (modifiedPerson) {
+        const index = this.dataSource.data.indexOf(selection);
+        this.dataSource.data[index] = modifiedPerson;
+        this.dataSource.data = [...this.dataSource.data];
+        this.selection.clear();
+        this.selection.select(modifiedPerson);
+      }
+    });
+  }
+
+  async paste() {
+    const clipboard = await navigator.clipboard.readText();
+    const rows = clipboard.split('\n');
+    const participants: Participant[] = [];
+    rows.forEach((row) => {
+      const cells = row.split('\t');
+      if (cells.length !== 4) {
+        throw new Error(`Wrong format`);
+      }
+      participants.push({
+        firstName: cells[0].trim(),
+        lastName: cells[1].trim(),
+        age: Number(cells[2].trim()),
+        gender: readGender(cells[3].trim())
+      });
+    });
+    this.dataSource.data = participants;
+
+    function readGender(gender: string): Gender {
+      if (Gender.Female.toUpperCase() === gender?.toUpperCase()) {
+        return Gender.Female;
+      }
+      if (Gender.Male.toUpperCase() === gender?.toUpperCase()) {
+        return Gender.Male;
+      }
+      throw new Error(
+        `Could not read gender. Make sure it's 'Male' or 'Female'`
+      );
+    }
+  }
+
+  copy(): string {
+    const text: string[] = [];
+    this.dataSource.data.forEach((participant) => {
+      text.push(
+        `${participant.firstName}\t${participant.lastName}\t${participant.age}\t${participant.gender}`
+      );
+    });
+    return text.join('\n');
+  }
+
+  remove() {
+    this.dataSource.data = this.dataSource.data.filter((participant) => {
+      return !this.selection.isSelected(participant);
+    });
+    this.selection.clear();
+  }
+
+  removeAll() {
+    const message = `This will remove all participants. Are you sure you want to do this?`;
+
+    const dialogData = new ConfirmDialogModel('Confirm Action', message);
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe((dialogResult) => {
+      if (dialogResult) {
+        this.dataSource.data = [];
+        this.selection.clear();
+      }
+    });
   }
 }
