@@ -39,7 +39,15 @@ export class ParticipantsComponent implements AfterViewInit {
   @ViewChild(MatSort)
   sort!: MatSort;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog) {
+    window.onbeforeunload = (e) => {
+      localStorage.setItem('data', this.copy());
+    };
+    const data = localStorage.getItem('data');
+    if (data && typeof data === 'string') {
+      this.pasteData(data);
+    }
+  }
 
   get list(): Participant[] {
     return this.dataSource.data;
@@ -123,7 +131,11 @@ export class ParticipantsComponent implements AfterViewInit {
 
   async paste() {
     const clipboard = await navigator.clipboard.readText();
-    const rows = clipboard.split('\n');
+    this.pasteData(clipboard);
+  }
+
+  private pasteData(data: string) {
+    const rows = data.split('\n');
     const participants: Participant[] = [];
     rows.forEach((row) => {
       const cells = row.split('\t');
