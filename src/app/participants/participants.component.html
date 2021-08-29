@@ -87,9 +87,13 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Gender</th>
       <td mat-cell *matCellDef="let person">
         <mat-chip-list>
-          <mat-chip [color]="genderColor(person)" selected>{{
-            person.gender
-          }}</mat-chip>
+          <mat-chip [color]="genderColor(person)" selected>
+            <mat-icon
+              [svgIcon]="person.gender"
+              aria-hidden="false"
+            >
+            </mat-icon>
+          </mat-chip>
         </mat-chip-list>
       </td>
     </ng-container>
