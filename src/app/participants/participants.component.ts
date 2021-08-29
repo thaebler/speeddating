@@ -8,17 +8,7 @@ import {
   ConfirmDialogModel
 } from '../confirm-dialog/confirm-dialog.component';
 import { ParticipantFormComponent } from '../participant-form/participant-form.component';
-
-export enum Gender {
-  Male = 'Male',
-  Female = 'Female'
-}
-export interface Participant {
-  firstName: string;
-  lastName: string;
-  gender: Gender;
-  age: number;
-}
+import { Gender, Participant, SeatingService } from '../seating.service';
 
 @Component({
   selector: 'app-participants',
@@ -39,7 +29,7 @@ export class ParticipantsComponent implements AfterViewInit {
   @ViewChild(MatSort)
   sort!: MatSort;
 
-  constructor(public dialog: MatDialog) {
+  constructor(public dialog: MatDialog, public seatingService: SeatingService) {
     window.onbeforeunload = (e) => {
       localStorage.setItem('data', this.copy());
     };
@@ -47,10 +37,7 @@ export class ParticipantsComponent implements AfterViewInit {
     if (data && typeof data === 'string') {
       this.pasteData(data);
     }
-  }
-
-  get list(): Participant[] {
-    return this.dataSource.data;
+    this.onDataChange();
   }
 
   ngAfterViewInit() {
@@ -102,12 +89,19 @@ export class ParticipantsComponent implements AfterViewInit {
     return 'accent';
   }
 
+  private onDataChange() {
+    this.seatingService.participants.next(this.dataSource.data);
+  }
+
   add() {
-    const dialogRef = this.dialog.open(ParticipantFormComponent);
+    const dialogRef = this.dialog.open(ParticipantFormComponent, {
+      data: { title: 'New Person' }
+    });
 
     dialogRef.afterClosed().subscribe((newPerson) => {
       if (newPerson) {
         this.dataSource.data = [...this.dataSource.data, newPerson];
+        this.onDataChange();
       }
     });
   }
@@ -115,7 +109,7 @@ export class ParticipantsComponent implements AfterViewInit {
   edit() {
     const selection = this.selection.selected[0];
     const dialogRef = this.dialog.open(ParticipantFormComponent, {
-      data: selection
+      data: { participant: selection, title: 'Edit Person' }
     });
 
     dialogRef.afterClosed().subscribe((modifiedPerson) => {
@@ -125,6 +119,7 @@ export class ParticipantsComponent implements AfterViewInit {
         this.dataSource.data = [...this.dataSource.data];
         this.selection.clear();
         this.selection.select(modifiedPerson);
+        this.onDataChange();
       }
     });
   }
@@ -132,6 +127,7 @@ export class ParticipantsComponent implements AfterViewInit {
   async paste() {
     const clipboard = await navigator.clipboard.readText();
     this.pasteData(clipboard);
+    this.onDataChange();
   }
 
   private pasteData(data: string) {
@@ -179,6 +175,7 @@ export class ParticipantsComponent implements AfterViewInit {
       return !this.selection.isSelected(participant);
     });
     this.selection.clear();
+    this.onDataChange();
   }
 
   removeAll() {
@@ -195,6 +192,7 @@ export class ParticipantsComponent implements AfterViewInit {
       if (dialogResult) {
         this.dataSource.data = [];
         this.selection.clear();
+        this.onDataChange();
       }
     });
   }

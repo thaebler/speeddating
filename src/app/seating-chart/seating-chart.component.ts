@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { SeatingService, Table } from '../seating.service';
 
 @Component({
   selector: 'app-seating-chart',
@@ -6,15 +7,21 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./seating-chart.component.css']
 })
 export class SeatingChartComponent implements OnInit {
-  constructor() {}
+  constructor(public seatingService: SeatingService) {
+    this.seatingService.tables.subscribe(this.renderTables);
+  }
 
   ngOnInit(): void {}
 
   onStart(): void {
-    console.log('Start');
+    this.seatingService.start();
   }
 
   onRotate(): void {
-    console.log('Rotate');
+    this.seatingService.rotate();
+  }
+
+  private renderTables(tables: Table[]) {
+    console.log('render tables', tables);
   }
 }

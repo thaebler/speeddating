@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Participant } from '../participants/participants.component';
+import { Participant } from '../seating.service';
 
 @Component({
   selector: 'app-participant-form',
@@ -12,17 +12,17 @@ export class ParticipantFormComponent {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<ParticipantFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public participant: Participant
+    @Inject(MAT_DIALOG_DATA) public data: ParticipantFormModel
   ) {}
 
   form = this.fb.group({
-    firstName: [this.participant?.firstName || '', [Validators.required]],
-    lastName: [this.participant?.lastName || '', [Validators.required]],
+    firstName: [this.data.participant?.firstName || '', [Validators.required]],
+    lastName: [this.data.participant?.lastName || '', [Validators.required]],
     age: [
-      this.participant?.age || '',
+      this.data.participant?.age || '',
       [Validators.required, Validators.min(18), Validators.max(80)]
     ],
-    gender: [this.participant?.gender || '', [Validators.required]]
+    gender: [this.data.participant?.gender || '', [Validators.required]]
   });
 
   onSubmit() {
@@ -38,4 +38,8 @@ export class ParticipantFormComponent {
   cancel() {
     this.dialogRef.close();
   }
+}
+
+export class ParticipantFormModel {
+  constructor(public title: string, public participant: Participant) {}
 }
