@@ -119,6 +119,10 @@ export class SeatingChartComponent implements AfterViewInit {
               }
               return value;
             }
+          },
+          title: {
+            display: true,
+            text: `Date ${state.dateNumber} / ${state.noOfDates}`
           }
         },
         scales: {

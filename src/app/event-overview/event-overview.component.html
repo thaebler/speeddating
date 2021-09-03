@@ -1,1 +1,44 @@
-<p>event-overview works!</p>
+<table>
+  <tr>
+    <td class="label">Number Of Dates:</td>
+    <td class="value">
+      <mat-form-field class="formFieldWidth480 full-width">
+        <input
+          #inputRef
+          type="number"
+          [value]="overview.noOfDates"
+          (change)="noOfDatesChange(inputRef)"
+          matInput
+        />
+      </mat-form-field>
+    </td>
+  </tr>
+  <tr>
+    <td class="label">Current Date:</td>
+    <td class="value">{{ overview.dateNumber }}</td>
+  </tr>
+  <tr>
+    <td class="label">Number Ladies:</td>
+    <td class="value">{{ overview.noOfLadies }}</td>
+  </tr>
+  <tr>
+    <td class="label">Number Of Men:</td>
+    <td class="value">{{ overview.noOfMen }}</td>
+  </tr>
+  <tr>
+    <td class="label">Median Age Ladies:</td>
+    <td *ngIf="overview.medianAgeLadies" class="value">
+      {{ overview.medianAgeLadies }}
+    </td>
+  </tr>
+  <tr>
+    <td class="label">Median Age Men:</td>
+    <td *ngIf="overview.medianAgeMen" class="value">
+      {{ overview.medianAgeMen }}
+    </td>
+  </tr>
+  <tr>
+    <td class="label">Age Range:</td>
+    <td class="value">{{ overview.minAge + '...' + overview.maxAge }}</td>
+  </tr>
+</table>
