@@ -11,6 +11,7 @@ export interface Participant {
   lastName: string;
   gender: Gender;
   age: number;
+  startsAtTable: number;
 }
 
 export interface Date {
@@ -44,17 +45,12 @@ export class SeatingService {
   private position = 0;
   private ladyQueue: Participant[] = [];
   private manQueue: Participant[] = [];
-  private static missingMan: Participant = {
-    firstName: '',
-    lastName: '',
-    gender: Gender.Male,
-    age: 0
-  };
-  private static missingLady: Participant = {
+  private static missingPerson: Participant = {
     firstName: '',
     lastName: '',
     gender: Gender.Female,
-    age: 0
+    age: 0,
+    startsAtTable: 0
   };
 
   constructor() {
@@ -105,22 +101,28 @@ export class SeatingService {
     this._state.medianAgeMen = medianAge(menSortedByAge);
     this._state.noOfMen = menSortedByAge.length;
     this._state.noOfLadies = ladiesSortedByAge.length;
-    const numberOfMissingMen = ladiesSortedByAge.length - menSortedByAge.length;
-    const numberOfMissingLadies = -numberOfMissingMen;
+    const numberOfMissingMen = Math.max(
+      ladiesSortedByAge.length - menSortedByAge.length,
+      0
+    );
+    const numberOfMissingLadies = Math.max(
+      menSortedByAge.length - ladiesSortedByAge.length,
+      0
+    );
     this.ladyQueue = [];
     this.manQueue = [];
     if (numberOfMissingMen > 0) {
       if (this._state.medianAgeLadies > this._state.medianAgeMen) {
         const men = [...menSortedByAge];
         for (let i = 0; i < numberOfMissingMen; i++) {
-          men.push(SeatingService.missingMan);
+          men.push(SeatingService.missingPerson);
         }
         enqueue(ladiesSortedByAge.reverse(), this.ladyQueue);
         enqueue(men.reverse(), this.manQueue);
       } else {
         const men = [...menSortedByAge];
         for (let i = 0; i < numberOfMissingMen; i++) {
-          men.unshift(SeatingService.missingMan);
+          men.unshift(SeatingService.missingPerson);
         }
         enqueue(ladiesSortedByAge, this.ladyQueue);
         enqueue(men, this.manQueue);
@@ -129,33 +131,46 @@ export class SeatingService {
       if (this._state.medianAgeMen > this._state.medianAgeLadies) {
         const ladies = [...ladiesSortedByAge];
         for (let i = 0; i < numberOfMissingLadies; i++) {
-          ladies.push(SeatingService.missingLady);
+          ladies.push(SeatingService.missingPerson);
         }
         enqueue(ladies.reverse(), this.ladyQueue);
         enqueue(menSortedByAge.reverse(), this.manQueue);
       } else {
         const ladies = [...ladiesSortedByAge];
         for (let i = 0; i < numberOfMissingLadies; i++) {
-          ladies.unshift(SeatingService.missingLady);
+          ladies.unshift(SeatingService.missingPerson);
         }
         enqueue(ladies, this.ladyQueue);
         enqueue(menSortedByAge, this.manQueue);
       }
+      // put all missing men to the beginning of the queue
+      let rotateQueueByNumber = 0;
+      for (let i = this.ladyQueue.length - 1; i >= 0; i--) {
+        if (this.ladyQueue[i] === SeatingService.missingPerson) {
+          rotateQueueByNumber++;
+        } else {
+          break;
+        }
+      }
+      rotateQueue(this.manQueue, rotateQueueByNumber);
+      rotateQueue(this.ladyQueue, rotateQueueByNumber);
     } else {
       enqueue(ladiesSortedByAge, this.ladyQueue);
       enqueue(menSortedByAge, this.manQueue);
     }
 
-    let tableNumber = 1;
+    let tableNumber = 0 - numberOfMissingLadies;
     this._state.dates = this.ladyQueue.map((lady) => {
-      if (lady === SeatingService.missingLady) {
+      tableNumber++;
+      if (lady === SeatingService.missingPerson) {
         return {
-          tableNumber: -1
+          tableNumber
         };
       }
+      lady.startsAtTable = tableNumber;
       return {
         lady,
-        tableNumber: tableNumber++
+        tableNumber: tableNumber
       };
     });
     this._state.minAge = Math.min(
@@ -169,6 +184,12 @@ export class SeatingService {
 
     this.assignSeats();
 
+    this._state.dates.forEach((date) => {
+      if (date.man) {
+        date.man.startsAtTable = date.tableNumber;
+      }
+    });
+
     function enqueue(sortedByAge: Participant[], queue: Participant[]) {
       sortedByAge.forEach((participant, sortedIndex) => {
         const insertAtBeginning = sortedIndex % 2 === 0;
@@ -178,6 +199,11 @@ export class SeatingService {
           : sortedByAge.length - distanceFromBeginOrEnd - 1;
         queue[indexInQueue] = participant;
       });
+    }
+
+    function rotateQueue(queue: Participant[], amount: number) {
+      const end = queue.splice(queue.length - amount);
+      queue.unshift(...end);
     }
   }
 
@@ -206,7 +232,7 @@ export class SeatingService {
 
     this._state.dates.forEach((date, index) => {
       const man = currentSeatingOfMen[index];
-      if (man === SeatingService.missingMan) {
+      if (man === SeatingService.missingPerson) {
         delete date.man;
       } else {
         date.man = currentSeatingOfMen[index];

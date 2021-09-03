@@ -30,7 +30,8 @@ export class ParticipantFormComponent {
       firstName: this.form.value['firstName'],
       lastName: this.form.value['lastName'],
       age: Number(this.form.value['age']),
-      gender: this.form.value['gender']
+      gender: this.form.value['gender'],
+      startsAtTable: 0
     };
     this.dialogRef.close(person);
   }

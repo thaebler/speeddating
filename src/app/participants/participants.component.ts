@@ -21,7 +21,7 @@ export class ParticipantsComponent implements AfterViewInit {
     'firstName',
     'lastName',
     'age',
-    'gender'
+    'startsAtTable'
   ];
   dataSource = new MatTableDataSource<Participant>([]);
   selection = new SelectionModel<Participant>(false, []);
@@ -89,6 +89,20 @@ export class ParticipantsComponent implements AfterViewInit {
     return 'accent';
   }
 
+  startsAtTable(person: Participant): string {
+    if (person.gender === Gender.Female) {
+      return '' + person.startsAtTable;
+    }
+    if (person.startsAtTable > 0) {
+      return '' + person.startsAtTable;
+    }
+    const numberOfBreaks = 1 - person.startsAtTable;
+    if (numberOfBreaks === 1) {
+      return '1 Break';
+    }
+    return `${numberOfBreaks} Breaks`;
+  }
+
   private onDataChange() {
     this.seatingService.participants.next(this.dataSource.data);
   }
@@ -124,6 +138,11 @@ export class ParticipantsComponent implements AfterViewInit {
     });
   }
 
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
   async paste() {
     const clipboard = await navigator.clipboard.readText();
     this.pasteData(clipboard);
@@ -142,7 +161,8 @@ export class ParticipantsComponent implements AfterViewInit {
         firstName: cells[0].trim(),
         lastName: cells[1].trim(),
         age: Number(cells[2].trim()),
-        gender: readGender(cells[3].trim())
+        gender: readGender(cells[3].trim()),
+        startsAtTable: 0
       });
     });
     this.dataSource.data = participants;

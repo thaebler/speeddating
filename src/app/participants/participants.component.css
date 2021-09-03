@@ -12,3 +12,12 @@ table {
   margin-right: 5px;
   margin-bottom: 5px;
 }
+
+.firstname-cell {
+  display: inline-flex;
+  align-items: center;
+}
+
+.firstname-value {
+  padding-left: 5px;
+}
