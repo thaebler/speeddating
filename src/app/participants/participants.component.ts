@@ -158,7 +158,10 @@ export class ParticipantsComponent implements AfterViewInit {
   }
 
   private pasteData(data: string) {
-    const rows = data.split('\n');
+    const rows = data
+      .split('\n')
+      .map((untrimmed) => untrimmed.trim())
+      .filter((row) => row.length > 0);
     const participants: Participant[] = [];
     rows.forEach((row) => {
       const cells = row.split('\t');

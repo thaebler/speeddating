@@ -15,11 +15,11 @@ export class AppComponent {
     this.matIconRegistry
       .addSvgIcon(
         'Male',
-        this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/male.svg')
+        this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/male.svg')
       )
       .addSvgIcon(
         'Female',
-        this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/female.svg')
+        this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/female.svg')
       );
   }
 }

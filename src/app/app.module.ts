@@ -29,7 +29,7 @@ import { ParticipantsComponent } from './participants/participants.component';
 import { SeatingChartComponent } from './seating-chart/seating-chart.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http);
+  return new TranslateHttpLoader(http, './assets/i18n/');
 }
 
 @NgModule({
