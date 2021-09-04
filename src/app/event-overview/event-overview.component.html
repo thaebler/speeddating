@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <td class="label">Number Of Dates:</td>
+    <td class="label">{{ 'noOfDates' | translate }}:</td>
     <td class="value">
       <mat-form-field class="formFieldWidth480 full-width">
         <input
@@ -14,27 +14,27 @@
     </td>
   </tr>
   <tr>
-    <td class="label">Number Ladies:</td>
+    <td class="label">{{ 'noOfLadies' | translate }}:</td>
     <td class="value">{{ overview.noOfLadies }}</td>
   </tr>
   <tr>
-    <td class="label">Number Of Men:</td>
+    <td class="label">{{ 'noOfMen' | translate }}:</td>
     <td class="value">{{ overview.noOfMen }}</td>
   </tr>
   <tr>
-    <td class="label">Median Age Ladies:</td>
+    <td class="label">{{ 'medianAgeLadies' | translate }}:</td>
     <td *ngIf="overview.medianAgeLadies" class="value">
       {{ overview.medianAgeLadies }}
     </td>
   </tr>
   <tr>
-    <td class="label">Median Age Men:</td>
+    <td class="label">{{ 'medianAgeMen' | translate }}:</td>
     <td *ngIf="overview.medianAgeMen" class="value">
       {{ overview.medianAgeMen }}
     </td>
   </tr>
   <tr>
-    <td class="label">Age Range:</td>
+    <td class="label">{{ 'ageRange' | translate }}:</td>
     <td class="value">{{ overview.minAge + '...' + overview.maxAge }}</td>
   </tr>
 </table>

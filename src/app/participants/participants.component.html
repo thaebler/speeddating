@@ -1,6 +1,6 @@
 <div class="actions">
   <button mat-raised-button color="primary" class="action" (click)="add()">
-    Add...
+    {{ 'addAction' | translate }}
   </button>
   <button
     mat-raised-button
@@ -9,7 +9,7 @@
     [disabled]="!isEmpty()"
     (click)="paste()"
   >
-    Paste From Clipboard
+    {{ 'pasteFromClipboardAction' | translate }}
   </button>
   <button
     mat-raised-button
@@ -18,7 +18,7 @@
     [disabled]="isEmpty()"
     [cdkCopyToClipboard]="copy()"
   >
-    Copy To Clipboard
+    {{ 'copyToClipboardAction' | translate }}
   </button>
   <button
     mat-raised-button
@@ -27,7 +27,7 @@
     [disabled]="isEmpty()"
     (click)="removeAll()"
   >
-    Delete All
+    {{ 'deleteAllAction' | translate }}
   </button>
   <button
     mat-raised-button
@@ -36,7 +36,7 @@
     [disabled]="!hasSingleSelection()"
     (click)="edit()"
   >
-    Edit...
+    {{ 'editAction' | translate }}
   </button>
   <button
     mat-raised-button
@@ -45,12 +45,12 @@
     [disabled]="!hasSelection()"
     (click)="remove()"
   >
-    Delete
+    {{ 'deleteAction' | translate }}
   </button>
 </div>
 
 <mat-form-field appearance="standard">
-  <mat-label>Filter</mat-label>
+  <mat-label>{{ 'filter' | translate }}</mat-label>
   <input
     matInput
     (keyup)="applyFilter($event)"
@@ -75,7 +75,9 @@
     </ng-container>
 
     <ng-container matColumnDef="firstName">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>First Name</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'firstName' | translate }}
+      </th>
       <td mat-cell *matCellDef="let person">
         <div class="firstname-cell">
           <mat-chip-list>
@@ -92,17 +94,23 @@
     </ng-container>
 
     <ng-container matColumnDef="lastName">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Name</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'lastName' | translate }}
+      </th>
       <td mat-cell *matCellDef="let person">{{ person.lastName }}</td>
     </ng-container>
 
     <ng-container matColumnDef="age">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Age</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'age' | translate }}
+      </th>
       <td mat-cell *matCellDef="let person">{{ person.age }}</td>
     </ng-container>
 
     <ng-container matColumnDef="startsAtTable">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Start</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ 'startsAtTable' | translate }}
+      </th>
       <td mat-cell *matCellDef="let person">{{ startsAtTable(person) }}</td>
     </ng-container>
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SeatingOverview, SeatingService } from '../seating.service';
+import { DatingEventData, SeatingService } from '../seating.service';
 
 @Component({
   selector: 'app-event-overview',
@@ -7,10 +7,10 @@ import { SeatingOverview, SeatingService } from '../seating.service';
   styleUrls: ['./event-overview.component.css']
 })
 export class EventOverviewComponent {
-  overview!: SeatingOverview;
+  overview!: DatingEventData;
 
   constructor(public seatingService: SeatingService) {
-    seatingService.state.subscribe((overview) => {
+    seatingService.data.subscribe((overview) => {
       this.overview = overview;
     });
   }

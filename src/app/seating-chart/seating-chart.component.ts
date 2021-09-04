@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Chart, registerables, TooltipItem, TooltipModel } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { SeatingOverview, SeatingService } from '../seating.service';
+import { DatingEventData, SeatingService } from '../seating.service';
 
 @Component({
   selector: 'app-seating-chart',
@@ -14,11 +15,22 @@ export class SeatingChartComponent implements AfterViewInit {
   @ViewChild('chart')
   canvas!: ElementRef;
 
-  constructor(public seatingService: SeatingService) {}
+  chartData?: DatingEventData;
+
+  constructor(
+    public seatingService: SeatingService,
+    private translate: TranslateService
+  ) {}
 
   ngAfterViewInit() {
     Chart.register(...registerables, ChartDataLabels);
-    this.seatingService.state.subscribe((state) => this.renderChart(state));
+    this.translate.onLangChange.subscribe(() => {
+      if (!this.chartData) {
+        this.seatingService.data.subscribe((data) => this.renderChart(data));
+      } else {
+        this.renderChart(this.chartData);
+      }
+    });
   }
 
   onStart(): void {
@@ -29,7 +41,9 @@ export class SeatingChartComponent implements AfterViewInit {
     this.seatingService.rotate();
   }
 
-  private renderChart(state: SeatingOverview) {
+  private renderChart(data: DatingEventData) {
+    this.chartData = data;
+    const ageDifferenceLabel = this.translate.instant('ageDifference');
     const ctx = this.canvas.nativeElement.getContext(
       '2d'
     ) as CanvasRenderingContext2D;
@@ -39,28 +53,28 @@ export class SeatingChartComponent implements AfterViewInit {
     this.chart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: state.dates.map((date) => {
+        labels: data.dates.map((date) => {
           if (date.tableNumber > 0) {
-            return 'Table ' + date.tableNumber;
+            return `${this.translate.instant('table')} ${date.tableNumber}`;
           }
-          return 'Break';
+          return this.translate.instant('break');
         }),
         datasets: [
           {
-            label: 'Ladies',
-            data: state.dates.map((date) => date.lady?.age),
+            label: this.translate.instant('ladies'),
+            data: data.dates.map((date) => date.lady?.age),
             borderColor: '#ff6699',
             backgroundColor: '#ff6699'
           },
           {
-            label: 'Men',
-            data: state.dates.map((date) => date.man?.age),
+            label: this.translate.instant('men'),
+            data: data.dates.map((date) => date.man?.age),
             borderColor: '#3399ff',
             backgroundColor: '#3399ff'
           },
           {
-            label: 'Age Difference',
-            data: state.dates.map((date) => {
+            label: ageDifferenceLabel,
+            data: data.dates.map((date) => {
               if (date.man && date.lady) {
                 return Math.abs(date.man.age - date.lady.age);
               }
@@ -86,8 +100,8 @@ export class SeatingChartComponent implements AfterViewInit {
                 this: TooltipModel<'bar'>,
                 tooltipItem: TooltipItem<'bar'>
               ): string | string[] {
-                const lady = state.dates[tooltipItem.dataIndex].lady;
-                const man = state.dates[tooltipItem.dataIndex].man;
+                const lady = data.dates[tooltipItem.dataIndex].lady;
+                const man = data.dates[tooltipItem.dataIndex].man;
                 if (lady && tooltipItem.datasetIndex === 0) {
                   return `${lady.firstName}: ${lady.age}`;
                 } else if (man && tooltipItem.datasetIndex === 1) {
@@ -95,7 +109,9 @@ export class SeatingChartComponent implements AfterViewInit {
                 } else if (lady && man && tooltipItem.datasetIndex === 2) {
                   const dataset =
                     this.dataPoints[tooltipItem.datasetIndex].dataset.data;
-                  return `Age difference: ${dataset[tooltipItem.dataIndex]}`;
+                  return `${ageDifferenceLabel}: ${
+                    dataset[tooltipItem.dataIndex]
+                  }`;
                 }
                 return '';
               }
@@ -113,22 +129,24 @@ export class SeatingChartComponent implements AfterViewInit {
             },
             formatter: function (value, context) {
               if (context.datasetIndex === 0) {
-                return state.dates[context.dataIndex].lady?.firstName;
+                return data.dates[context.dataIndex].lady?.firstName;
               } else if (context.datasetIndex === 1) {
-                return state.dates[context.dataIndex].man?.firstName;
+                return data.dates[context.dataIndex].man?.firstName;
               }
               return value;
             }
           },
           title: {
             display: true,
-            text: `Date ${state.dateNumber} / ${state.noOfDates}`
+            text: `${this.translate.instant('date')} ${data.dateNumber} / ${
+              data.noOfDates
+            }`
           }
         },
         scales: {
           y: {
             min: 0,
-            max: state.maxAge + 20
+            max: data.maxAge + 20
           }
         }
       }

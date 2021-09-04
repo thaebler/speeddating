@@ -3,6 +3,7 @@ import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 import {
   ConfirmDialogComponent,
   ConfirmDialogModel
@@ -29,7 +30,11 @@ export class ParticipantsComponent implements AfterViewInit {
   @ViewChild(MatSort)
   sort!: MatSort;
 
-  constructor(public dialog: MatDialog, public seatingService: SeatingService) {
+  constructor(
+    public dialog: MatDialog,
+    public seatingService: SeatingService,
+    private translate: TranslateService
+  ) {
     window.onbeforeunload = (e) => {
       localStorage.setItem('data', this.copy());
     };
@@ -98,9 +103,9 @@ export class ParticipantsComponent implements AfterViewInit {
     }
     const numberOfBreaks = 1 - person.startsAtTable;
     if (numberOfBreaks === 1) {
-      return '1 Break';
+      return `1 ${this.translate.instant('break')}`;
     }
-    return `${numberOfBreaks} Breaks`;
+    return `${numberOfBreaks} ${this.translate.instant('breaks')}`;
   }
 
   private onDataChange() {
@@ -109,7 +114,7 @@ export class ParticipantsComponent implements AfterViewInit {
 
   add() {
     const dialogRef = this.dialog.open(ParticipantFormComponent, {
-      data: { title: 'New Person' }
+      data: { title: this.translate.instant('addNewPersonTitle') }
     });
 
     dialogRef.afterClosed().subscribe((newPerson) => {
@@ -123,7 +128,10 @@ export class ParticipantsComponent implements AfterViewInit {
   edit() {
     const selection = this.selection.selected[0];
     const dialogRef = this.dialog.open(ParticipantFormComponent, {
-      data: { participant: selection, title: 'Edit Person' }
+      data: {
+        participant: selection,
+        title: this.translate.instant('editPersonTitle')
+      }
     });
 
     dialogRef.afterClosed().subscribe((modifiedPerson) => {
@@ -199,15 +207,15 @@ export class ParticipantsComponent implements AfterViewInit {
   }
 
   removeAll() {
-    const message = `This will remove all participants. Are you sure you want to do this?`;
-
-    const dialogData = new ConfirmDialogModel('Confirm Action', message);
-
+    const message = this.translate.instant('removeAllParticipantsWarning');
+    const dialogData = new ConfirmDialogModel(
+      this.translate.instant('confirmActionTitle'),
+      message
+    );
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
       data: dialogData
     });
-
     dialogRef.afterClosed().subscribe((dialogResult) => {
       if (dialogResult) {
         this.dataSource.data = [];

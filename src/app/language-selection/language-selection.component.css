@@ -1,0 +1,7 @@
+.select-box {
+  width: 150px;
+}
+
+:host ::ng-deep.mat-select-value {
+  overflow: visible;
+}
