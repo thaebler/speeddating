@@ -69,7 +69,7 @@ export class SeatingChartComponent implements AfterViewInit {
     const ageDifferenceLabel = this.translate.instant('ageDifference');
     return {
       labels: eventData.dates.map((eventData) => {
-        if (eventData.tableNumber > 0) {
+        if (eventData.tableNumber) {
           return `${this.translate.instant('table')} ${eventData.tableNumber}`;
         }
         return this.translate.instant('break');

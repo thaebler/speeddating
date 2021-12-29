@@ -95,17 +95,18 @@ export class ParticipantsComponent implements AfterViewInit {
   }
 
   startsAtTable(person: Participant): string {
-    if (person.gender === Gender.Female) {
-      return '' + person.startsAtTable;
+    if (person.startsWithBreak) {
+      if (person.gender === Gender.Female) {
+        return `${person.startsAtTable} (${this.translate.instant(
+          'startsWithBreak'
+        )})`;
+      } else {
+        return `${this.translate.instant('startsWithBreakThenTable')} ${
+          person.startsAtTable
+        }`;
+      }
     }
-    if (person.startsAtTable > 0) {
-      return '' + person.startsAtTable;
-    }
-    const numberOfBreaks = 1 - person.startsAtTable;
-    if (numberOfBreaks === 1) {
-      return `1 ${this.translate.instant('break')}`;
-    }
-    return `${numberOfBreaks} ${this.translate.instant('breaks')}`;
+    return `${person.startsAtTable}`;
   }
 
   private onDataChange() {

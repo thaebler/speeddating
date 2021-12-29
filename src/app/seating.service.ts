@@ -12,10 +12,11 @@ export interface Participant {
   gender: Gender;
   age: number;
   startsAtTable: number;
+  startsWithBreak?: boolean;
 }
 
 export interface Date {
-  tableNumber: number;
+  tableNumber?: number;
   lady?: Participant;
   man?: Participant;
 }
@@ -38,10 +39,10 @@ export interface DatingEventData {
   providedIn: 'root'
 })
 export class SeatingService {
-  _date: DatingEventData = this.emptyState();
+  _data: DatingEventData = this.emptyState();
   numberOfDates = new BehaviorSubject<number>(10);
   participants = new BehaviorSubject<Participant[]>([]);
-  data = new BehaviorSubject<DatingEventData>(this._date);
+  data = new BehaviorSubject<DatingEventData>(this._data);
 
   private startPosition = 0;
   private position = 0;
@@ -78,9 +79,9 @@ export class SeatingService {
 
   public start() {
     if (this.participants.value.length === 0) {
-      if (this._date.dates.length) {
-        this._date = this.emptyState();
-        this.data.next(this._date);
+      if (this._data.dates.length) {
+        this._data = this.emptyState();
+        this.data.next(this._data);
       }
       return;
     }
@@ -94,33 +95,39 @@ export class SeatingService {
       ladiesSortedByAge.length,
       menSortedByAge.length
     );
-    this._date.noOfDates = Math.min(this.numberOfDates.value, maxNumberOfDates);
-    this.position = this.startPosition = Math.ceil(
-      0 - this._date.noOfDates / 2
+    this._data.noOfDates = Math.min(this.numberOfDates.value, maxNumberOfDates);
+    this._data.numberOfMissingMen = Math.max(
+      ladiesSortedByAge.length - menSortedByAge.length,
+      0
     );
-    this._date.medianAgeLadies = medianAge(ladiesSortedByAge);
-    this._date.medianAgeMen = medianAge(menSortedByAge);
-    this._date.noOfMen = menSortedByAge.length;
-    this._date.noOfLadies = ladiesSortedByAge.length;
-    this._date.minAge = Math.min(
+    this._data.numberOfMissingLadies = Math.max(
+      menSortedByAge.length - ladiesSortedByAge.length,
+      0
+    );
+    this.position = this.startPosition = Math.ceil(
+      0 - this._data.noOfDates / 2
+    );
+    this._data.medianAgeLadies = medianAge(ladiesSortedByAge);
+    this._data.medianAgeMen = medianAge(menSortedByAge);
+    this._data.noOfMen = menSortedByAge.length;
+    this._data.noOfLadies = ladiesSortedByAge.length;
+    this._data.minAge = Math.min(
       menSortedByAge[0]?.age || 100,
       ladiesSortedByAge[0]?.age || 100
     );
-    this._date.maxAge = Math.max(
+    this._data.maxAge = Math.max(
       menSortedByAge[menSortedByAge.length - 1]?.age || 0,
       ladiesSortedByAge[ladiesSortedByAge.length - 1]?.age || 0
     );
 
     this.initQueues(ladiesSortedByAge, menSortedByAge);
 
-    let tableNumber = 0 - this._date.numberOfMissingLadies;
-    this._date.dates = this.ladyQueue.map((lady) => {
-      tableNumber++;
+    let tableNumber = 0;
+    this._data.dates = this.ladyQueue.map((lady) => {
       if (lady === SeatingService.missingPerson) {
-        return {
-          tableNumber
-        };
+        return {};
       }
+      tableNumber++;
       lady.startsAtTable = tableNumber;
       return {
         lady,
@@ -130,16 +137,27 @@ export class SeatingService {
 
     this.assignSeats();
 
-    this._date.dates.forEach((date) => {
+    tableNumber = 0;
+    this._data.dates.forEach((date) => {
       if (date.man) {
-        date.man.startsAtTable = date.tableNumber;
+        if (date.tableNumber) {
+          tableNumber = date.tableNumber;
+          date.man.startsWithBreak = false;
+          date.man.startsAtTable = date.tableNumber;
+        } else {
+          date.man.startsWithBreak = true;
+          date.man.startsAtTable = tableNumber + 1;
+        }
+      }
+      if (date.lady) {
+        date.lady.startsWithBreak = !date.man;
       }
     });
   }
 
   public rotate() {
     this.position++;
-    if (this.position - this.startPosition >= this._date.noOfDates) {
+    if (this.position - this.startPosition >= this._data.noOfDates) {
       this.position = this.startPosition;
     }
     this.assignSeats();
@@ -151,60 +169,20 @@ export class SeatingService {
   ) {
     this.ladyQueue = [];
     this.manQueue = [];
-    this._date.numberOfMissingMen = Math.max(
-      ladiesSortedByAge.length - menSortedByAge.length,
-      0
-    );
-    this._date.numberOfMissingLadies = Math.max(
-      menSortedByAge.length - ladiesSortedByAge.length,
-      0
-    );
-    if (this._date.numberOfMissingMen > 0) {
-      if (this._date.medianAgeLadies > this._date.medianAgeMen) {
-        const men = [...menSortedByAge];
-        for (let i = 0; i < this._date.numberOfMissingMen; i++) {
-          men.push(SeatingService.missingPerson);
-        }
-        enqueue(ladiesSortedByAge.reverse(), this.ladyQueue);
-        enqueue(men.reverse(), this.manQueue);
-      } else {
-        const men = [...menSortedByAge];
-        for (let i = 0; i < this._date.numberOfMissingMen; i++) {
-          men.unshift(SeatingService.missingPerson);
-        }
-        enqueue(ladiesSortedByAge, this.ladyQueue);
-        enqueue(men, this.manQueue);
-      }
-    } else if (this._date.numberOfMissingLadies > 0) {
-      if (this._date.medianAgeMen > this._date.medianAgeLadies) {
-        const ladies = [...ladiesSortedByAge];
-        for (let i = 0; i < this._date.numberOfMissingLadies; i++) {
-          ladies.push(SeatingService.missingPerson);
-        }
-        enqueue(ladies.reverse(), this.ladyQueue);
-        enqueue(menSortedByAge.reverse(), this.manQueue);
-      } else {
-        const ladies = [...ladiesSortedByAge];
-        for (let i = 0; i < this._date.numberOfMissingLadies; i++) {
-          ladies.unshift(SeatingService.missingPerson);
-        }
-        enqueue(ladies, this.ladyQueue);
-        enqueue(menSortedByAge, this.manQueue);
-      }
-      // put all missing men to the beginning of the queue
-      let rotateQueueByNumber = 0;
-      for (let i = this.ladyQueue.length - 1; i >= 0; i--) {
-        if (this.ladyQueue[i] === SeatingService.missingPerson) {
-          rotateQueueByNumber++;
-        } else {
-          break;
-        }
-      }
-      rotateQueue(this.manQueue, rotateQueueByNumber);
-      rotateQueue(this.ladyQueue, rotateQueueByNumber);
-    } else {
-      enqueue(ladiesSortedByAge, this.ladyQueue);
-      enqueue(menSortedByAge, this.manQueue);
+    enqueue(ladiesSortedByAge, this.ladyQueue);
+    enqueue(menSortedByAge, this.manQueue);
+    if (this._data.numberOfMissingMen > 0) {
+      fillMissingPerson(
+        this.manQueue,
+        this._data.numberOfMissingMen,
+        this._data.noOfMen / this._data.numberOfMissingMen
+      );
+    } else if (this._data.numberOfMissingLadies > 0) {
+      fillMissingPerson(
+        this.ladyQueue,
+        this._data.numberOfMissingLadies,
+        this._data.noOfLadies / this._data.numberOfMissingLadies
+      );
     }
 
     function enqueue(sortedByAge: Participant[], queue: Participant[]) {
@@ -218,9 +196,15 @@ export class SeatingService {
       });
     }
 
-    function rotateQueue(queue: Participant[], amount: number) {
-      const end = queue.splice(queue.length - amount);
-      queue.unshift(...end);
+    function fillMissingPerson(
+      person: Participant[],
+      amount: number,
+      gap: number
+    ) {
+      for (let i = 0; i < amount; i++) {
+        const index = Math.floor(i + i * gap);
+        person.splice(index, 0, SeatingService.missingPerson);
+      }
     }
   }
 
@@ -239,7 +223,7 @@ export class SeatingService {
       currentSeatingOfMen[tableIndex] = man;
     });
 
-    this._date.dates.forEach((date, index) => {
+    this._data.dates.forEach((date, index) => {
       const man = currentSeatingOfMen[index];
       if (man === SeatingService.missingPerson) {
         delete date.man;
@@ -247,8 +231,8 @@ export class SeatingService {
         date.man = currentSeatingOfMen[index];
       }
     });
-    this._date.dateNumber = this.position - this.startPosition + 1;
-    this.data.next(this._date);
+    this._data.dateNumber = this.position - this.startPosition + 1;
+    this.data.next(this._data);
   }
 }
 

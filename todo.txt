@@ -1,8 +1,7 @@
 
 - Table: Add diff age range
 
-- Bessere Alters-Verteilung der Teilnehmer bei unterschiedlicher Anzahl Teilnehmer
-    - Pausen auch in der Mitte
+- anzeigen in overview wo die pausen stattfinden
 - Ausnahmen:
     - Paare die sich nicht treffen sollen
     - Paare die sich treffen sollen
