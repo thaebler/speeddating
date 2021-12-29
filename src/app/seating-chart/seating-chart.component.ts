@@ -135,9 +135,9 @@ export class SeatingChartComponent implements AfterViewInit {
                 const lady = eventData.dates[tooltipItem.dataIndex].lady;
                 const man = eventData.dates[tooltipItem.dataIndex].man;
                 if (lady && tooltipItem.datasetIndex === 0) {
-                  return `${lady.firstName}: ${lady.age}`;
+                  return `${lady.nickName}: ${lady.age}`;
                 } else if (man && tooltipItem.datasetIndex === 1) {
-                  return `${man.firstName}: ${man.age}`;
+                  return `${man.nickName}: ${man.age}`;
                 } else if (lady && man && tooltipItem.datasetIndex === 2) {
                   const dataset =
                     this.dataPoints[tooltipItem.datasetIndex].dataset.data;
@@ -161,9 +161,9 @@ export class SeatingChartComponent implements AfterViewInit {
             },
             formatter: function (value, context) {
               if (context.datasetIndex === 0) {
-                return eventData.dates[context.dataIndex].lady?.firstName;
+                return eventData.dates[context.dataIndex].lady?.nickName;
               } else if (context.datasetIndex === 1) {
-                return eventData.dates[context.dataIndex].man?.firstName;
+                return eventData.dates[context.dataIndex].man?.nickName;
               }
               return value;
             }

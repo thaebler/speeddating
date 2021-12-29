@@ -1,7 +1,6 @@
 
-- Table: Add diff age range
-
-- anzeigen in overview wo die pausen stattfinden
+- missingPerson --> null?
 - Ausnahmen:
-    - Paare die sich nicht treffen sollen
     - Paare die sich treffen sollen
+
+- für jede Person den altersrange seiner dates anzeigen

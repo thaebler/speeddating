@@ -32,6 +32,7 @@
   "confirmActionTitle": "Bestätigung Erforderlich",
   "firstName": "Vorname",
   "lastName": "Nachnahme",
+  "nickName": "Übername",
   "age": "Alter",
   "startsAtTable": "Start",
   "gender": "Geschlecht",
@@ -40,5 +41,7 @@
   "ok": "OK",
   "cancel": "Abbrechen",
   "yes": "Ja",
-  "no": "Nein"
+  "no": "Nein",
+  "nogoLabel": "Nogo Liste",
+  "uniqueNicknameValidationFailed": "Übername ist schon vergeben"
 }

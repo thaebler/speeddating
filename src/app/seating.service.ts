@@ -9,10 +9,12 @@ export enum Gender {
 export interface Participant {
   firstName: string;
   lastName: string;
+  nickName: string;
   gender: Gender;
   age: number;
   startsAtTable: number;
   startsWithBreak?: boolean;
+  nogos: Participant[];
 }
 
 export interface Date {
@@ -51,6 +53,8 @@ export class SeatingService {
   private static missingPerson: Participant = {
     firstName: '',
     lastName: '',
+    nickName: '',
+    nogos: [],
     gender: Gender.Female,
     age: 0,
     startsAtTable: 0
@@ -121,6 +125,7 @@ export class SeatingService {
     );
 
     this.initQueues(ladiesSortedByAge, menSortedByAge);
+    this.applySpecialRules();
 
     let tableNumber = 0;
     this._data.dates = this.ladyQueue.map((lady) => {
@@ -161,6 +166,57 @@ export class SeatingService {
       this.position = this.startPosition;
     }
     this.assignSeats();
+  }
+
+  public updateNogoRuleFor(
+    person: Participant,
+    oldNogoList: Participant[],
+    newNogoList: Participant[]
+  ) {
+    person.nogos = newNogoList.map((nogo) => {
+      // also update the nogo's list
+      if (!nogo.nogos.includes(person)) {
+        nogo.nogos.push(person);
+      }
+      return nogo;
+    });
+    const removedNogos = oldNogoList.filter((nogo) => {
+      return !newNogoList.includes(nogo);
+    });
+    removedNogos.forEach((nogo) => {
+      const index = nogo.nogos.indexOf(person);
+      if (index > -1) {
+        nogo.nogos.splice(index, 1);
+      }
+    });
+  }
+
+  public addNogoRuleFor(
+    nickName: string,
+    nogoList: string[],
+    participants = this.participants.value
+  ) {
+    const person = participants.find((p) => p.nickName === nickName);
+    if (person) {
+      const nogos = nogoList.map((nogoName) => {
+        const nogo = participants.find((p) => p.nickName === nogoName);
+        if (nogo) {
+          // also update the nogo's list
+          if (!nogo.nogos.includes(person)) {
+            nogo.nogos.push(person);
+          }
+          return nogo;
+        } else {
+          throw new Error(`Could not find nickname ${nogoName}`);
+        }
+      });
+      const addedNogos = nogos.filter((nogoName) => {
+        return !person.nogos.includes(nogoName);
+      });
+      person.nogos.push(...addedNogos);
+    } else {
+      throw new Error(`Could not find nickname ${nickName}`);
+    }
   }
 
   private initQueues(
@@ -206,6 +262,82 @@ export class SeatingService {
         person.splice(index, 0, SeatingService.missingPerson);
       }
     }
+  }
+
+  private applySpecialRules() {
+    const moved: Participant[] = [];
+    this.participants.value.forEach((man) => this.applyNogoRuleFor(man, moved));
+  }
+
+  private applyNogoRuleFor(person: Participant, moved: Participant[]) {
+    if (person.nogos.length > 0) {
+      const otherQueue =
+        person.gender === Gender.Female ? this.manQueue : this.ladyQueue;
+      const meetsWith = this.findMyDates(person);
+      person.nogos.forEach((nogo) => {
+        if (meetsWith.includes(nogo)) {
+          console.log(
+            `Oh no, ${person.nickName} meets ${nogo.nickName}, find someone else...`
+          );
+          const potentialReplacements = otherQueue.filter((other) => {
+            return !meetsWith.includes(other) && !moved.includes(other);
+          });
+          let replacement = potentialReplacements.find(
+            (r) => r.age === nogo.age
+          );
+          if (!replacement) {
+            replacement = potentialReplacements.find(
+              (r) => Math.abs(r.age - nogo.age) <= 1
+            );
+          }
+          if (replacement) {
+            const otherIndex = otherQueue.findIndex((r) => r === replacement);
+            const nogoIndex = otherQueue.findIndex((r) => r === nogo);
+            otherQueue[otherIndex] = nogo;
+            otherQueue[nogoIndex] = replacement;
+            moved.push(nogo);
+            moved.push(replacement);
+            console.log(`--> found replacement ${replacement.nickName}`);
+          } else {
+            console.log(`--> could not find a replacement...`);
+          }
+        }
+      });
+    }
+  }
+
+  private findMyDates(person: Participant): Participant[] {
+    const myQueue =
+      person.gender === Gender.Female ? this.ladyQueue : this.manQueue;
+    const otherQueue =
+      person.gender === Gender.Female ? this.manQueue : this.ladyQueue;
+    const myIndexInQueue = myQueue.findIndex(
+      (p) => p.nickName === person.nickName
+    );
+    const meetsWith: Participant[] = [];
+    const queueLength = myQueue.length;
+    for (
+      let i = this.startPosition;
+      i < this.startPosition + this._data.noOfDates;
+      i++
+    ) {
+      const position =
+        myIndexInQueue +
+        i +
+        (person.gender === Gender.Male
+          ? 0
+          : this._data.noOfDates % 2 === 0
+          ? 1
+          : 0);
+      const newIndex =
+        position < 0
+          ? position + queueLength
+          : position >= queueLength
+          ? position - queueLength
+          : position;
+      meetsWith.push(otherQueue[newIndex]);
+    }
+    return meetsWith;
   }
 
   private assignSeats() {

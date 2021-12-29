@@ -21,6 +21,7 @@ export class ParticipantsComponent implements AfterViewInit {
     'select',
     'firstName',
     'lastName',
+    'nickName',
     'age',
     'startsAtTable'
   ];
@@ -118,9 +119,12 @@ export class ParticipantsComponent implements AfterViewInit {
       data: { title: this.translate.instant('addNewPersonTitle') }
     });
 
-    dialogRef.afterClosed().subscribe((newPerson) => {
+    dialogRef.afterClosed().subscribe((newPerson: Participant) => {
       if (newPerson) {
         this.dataSource.data = [...this.dataSource.data, newPerson];
+        if (newPerson.nogos.length) {
+          this.seatingService.updateNogoRuleFor(newPerson, [], newPerson.nogos);
+        }
         this.onDataChange();
       }
     });
@@ -134,14 +138,20 @@ export class ParticipantsComponent implements AfterViewInit {
         title: this.translate.instant('editPersonTitle')
       }
     });
+    const oldNogoList = [...selection.nogos];
 
-    dialogRef.afterClosed().subscribe((modifiedPerson) => {
+    dialogRef.afterClosed().subscribe((modifiedPerson: Participant) => {
       if (modifiedPerson) {
         const index = this.dataSource.data.indexOf(selection);
         this.dataSource.data[index] = modifiedPerson;
         this.dataSource.data = [...this.dataSource.data];
         this.selection.clear();
         this.selection.select(modifiedPerson);
+        this.seatingService.updateNogoRuleFor(
+          modifiedPerson,
+          oldNogoList,
+          modifiedPerson.nogos
+        );
         this.onDataChange();
       }
     });
@@ -164,18 +174,40 @@ export class ParticipantsComponent implements AfterViewInit {
       .map((untrimmed) => untrimmed.trim())
       .filter((row) => row.length > 0);
     const participants: Participant[] = [];
+    const nogoRules: Record<string, string[]> = {};
     rows.forEach((row) => {
       const cells = row.split('\t');
-      if (cells.length !== 4) {
+      if (cells.length < 5 || cells.length > 6) {
         throw new Error(`Wrong format`);
+      }
+      const nickName = cells[2].trim();
+      const nogoRule = cells[5]?.trim();
+      // check that the nicknames are unique:
+      if (
+        participants.findIndex((person) => person.nickName === nickName) >= 0
+      ) {
+        throw new Error(`Nicknames must be unique (Nickname: ${nickName})`);
       }
       participants.push({
         firstName: cells[0].trim(),
         lastName: cells[1].trim(),
-        age: Number(cells[2].trim()),
-        gender: readGender(cells[3].trim()),
-        startsAtTable: 0
+        nickName: nickName,
+        age: Number(cells[3].trim()),
+        gender: readGender(cells[4].trim()),
+        startsAtTable: 0,
+        nogos: []
       });
+      if (nogoRule) {
+        const nogoList = nogoRule.split(',').map((name) => name.trim());
+        nogoRules[nickName] = nogoList;
+      }
+    });
+    Object.keys(nogoRules).forEach((nickName) => {
+      this.seatingService.addNogoRuleFor(
+        nickName,
+        nogoRules[nickName],
+        participants
+      );
     });
     this.dataSource.data = participants;
 
@@ -195,19 +227,28 @@ export class ParticipantsComponent implements AfterViewInit {
   copy(): string {
     const text: string[] = [];
     this.dataSource.data.forEach((participant) => {
+      const nogosString = participant.nogos
+        .map((person) => person.nickName)
+        .join(',');
       text.push(
-        `${participant.firstName}\t${participant.lastName}\t${participant.age}\t${participant.gender}`
+        `${participant.firstName}\t${participant.lastName}\t${participant.nickName}\t${participant.age}\t${participant.gender}\t${nogosString}`
       );
     });
     return text.join('\n');
   }
 
   remove() {
-    this.dataSource.data = this.dataSource.data.filter((participant) => {
-      return !this.selection.isSelected(participant);
+    const selected = this.dataSource.data.find((participant) => {
+      return this.selection.isSelected(participant);
     });
-    this.selection.clear();
-    this.onDataChange();
+    if (selected) {
+      this.dataSource.data = this.dataSource.data.filter((participant) => {
+        return participant !== selected;
+      });
+      this.seatingService.updateNogoRuleFor(selected, selected?.nogos, []);
+      this.selection.clear();
+      this.onDataChange();
+    }
   }
 
   removeAll() {
