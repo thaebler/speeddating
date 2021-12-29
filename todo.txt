@@ -1,0 +1,10 @@
+
+- Table: Add diff age range
+
+- Github
+- v1 taggen
+- Bessere Alters-Verteilung der Teilnehmer bei unterschiedlicher Anzahl Teilnehmer
+    - Pausen auch in der Mitte
+- Ausnahmen:
+    - Paare die sich nicht treffen sollen
+    - Paare die sich treffen sollen
