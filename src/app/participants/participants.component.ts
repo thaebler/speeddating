@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
+import { ClipboardDialogComponent } from '../clipboard-dialog/clipboard-dialog.component';
 import {
   ConfirmDialogComponent,
   ConfirmDialogModel
@@ -163,8 +164,16 @@ export class ParticipantsComponent implements AfterViewInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
+  private async readFromClipboard(): Promise<string> {
+    if (navigator.clipboard && navigator.clipboard['readText']) {
+      return navigator.clipboard.readText();
+    }
+    const dialogRef = this.dialog.open(ClipboardDialogComponent, {});
+    return dialogRef.afterClosed().toPromise();
+  }
+
   async paste() {
-    const clipboard = await navigator.clipboard.readText();
+    const clipboard = await this.readFromClipboard();
     this.pasteData(clipboard);
     this.onDataChange();
   }

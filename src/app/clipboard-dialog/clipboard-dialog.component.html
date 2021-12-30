@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>
+  {{ 'clipboardDialogTitle' | translate }}
+</h1>
+
+<div mat-dialog-content>
+  <p>{{ 'pasteHereTitle' | translate }}</p>
+  <textarea [(ngModel)]="clipboard" rows="30" cols="60"> </textarea>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="onDismiss()">{{ 'cancel' | translate }}</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onConfirm()"
+    [disabled]="!clipboard"
+  >
+    {{ 'ok' | translate }}
+  </button>
+</div>

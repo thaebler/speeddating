@@ -44,5 +44,7 @@
   "no": "Nein",
   "nogoLabel": "Nogo Liste",
   "uniqueNicknameValidationFailed": "Übername ist schon vergeben",
-  "meetsAgeRange": "Trifft Alter"
+  "meetsAgeRange": "Trifft Alter",
+  "clipboardDialogTitle": "Import von Zwischenspeicher",
+  "pasteHereTitle": "Hier einfügen:"
 }

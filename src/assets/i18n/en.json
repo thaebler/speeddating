@@ -44,5 +44,7 @@
   "no": "No",
   "nogoLabel": "Nogo List",
   "uniqueNicknameValidationFailed": "Nickname is already used",
-  "meetsAgeRange": "Meets Age"
+  "meetsAgeRange": "Meets Age",
+  "clipboardDialogTitle": "Import from clipboard",
+  "pasteHereTitle": "Paste here:"
 }

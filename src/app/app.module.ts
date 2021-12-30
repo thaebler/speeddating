@@ -21,6 +21,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppComponent } from './app.component';
+import { ClipboardDialogComponent } from './clipboard-dialog/clipboard-dialog.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { EventOverviewComponent } from './event-overview/event-overview.component';
 import { LanguageSelectionComponent } from './language-selection/language-selection.component';
@@ -40,7 +41,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     SeatingChartComponent,
     ParticipantFormComponent,
     ConfirmDialogComponent,
-    LanguageSelectionComponent
+    LanguageSelectionComponent,
+    ClipboardDialogComponent
   ],
   imports: [
     BrowserModule,

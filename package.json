@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "dist": "ng build --prod",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "jest src/app/seating.service.spec.ts",
