@@ -43,5 +43,6 @@
   "yes": "Ja",
   "no": "Nein",
   "nogoLabel": "Nogo Liste",
-  "uniqueNicknameValidationFailed": "Übername ist schon vergeben"
+  "uniqueNicknameValidationFailed": "Übername ist schon vergeben",
+  "meetsAgeRange": "Trifft Alter"
 }

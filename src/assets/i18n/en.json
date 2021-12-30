@@ -43,5 +43,6 @@
   "yes": "Yes",
   "no": "No",
   "nogoLabel": "Nogo List",
-  "uniqueNicknameValidationFailed": "Nickname is already used"
+  "uniqueNicknameValidationFailed": "Nickname is already used",
+  "meetsAgeRange": "Meets Age"
 }

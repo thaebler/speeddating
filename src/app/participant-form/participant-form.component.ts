@@ -54,7 +54,8 @@ export class ParticipantFormComponent {
       age: Number(this.form.value['age']),
       gender: this.form.value['gender'],
       startsAtTable: 0,
-      nogos: this.nogos
+      nogos: this.nogos,
+      meetsAgeRange: ''
     };
     if (this.data.participant) {
       Object.assign(this.data.participant, person);

@@ -23,7 +23,8 @@ export class ParticipantsComponent implements AfterViewInit {
     'lastName',
     'nickName',
     'age',
-    'startsAtTable'
+    'startsAtTable',
+    'meetsAgeRange'
   ];
   dataSource = new MatTableDataSource<Participant>([]);
   selection = new SelectionModel<Participant>(false, []);
@@ -195,7 +196,8 @@ export class ParticipantsComponent implements AfterViewInit {
         age: Number(cells[3].trim()),
         gender: readGender(cells[4].trim()),
         startsAtTable: 0,
-        nogos: []
+        nogos: [],
+        meetsAgeRange: ''
       });
       if (nogoRule) {
         const nogoList = nogoRule.split(',').map((name) => name.trim());

@@ -15,6 +15,7 @@ export interface Participant {
   startsAtTable: number;
   startsWithBreak?: boolean;
   nogos: Participant[];
+  meetsAgeRange: string;
 }
 
 export interface Date {
@@ -57,7 +58,8 @@ export class SeatingService {
     nogos: [],
     gender: Gender.Female,
     age: 0,
-    startsAtTable: 0
+    startsAtTable: 0,
+    meetsAgeRange: ''
   };
 
   constructor() {
@@ -126,6 +128,7 @@ export class SeatingService {
 
     this.initQueues(ladiesSortedByAge, menSortedByAge);
     this.applySpecialRules();
+    this.showAgeRangeOfDates();
 
     let tableNumber = 0;
     this._data.dates = this.ladyQueue.map((lady) => {
@@ -266,7 +269,9 @@ export class SeatingService {
 
   private applySpecialRules() {
     const moved: Participant[] = [];
-    this.participants.value.forEach((man) => this.applyNogoRuleFor(man, moved));
+    this.participants.value.forEach((person) =>
+      this.applyNogoRuleFor(person, moved)
+    );
   }
 
   private applyNogoRuleFor(person: Participant, moved: Participant[]) {
@@ -338,6 +343,21 @@ export class SeatingService {
       meetsWith.push(otherQueue[newIndex]);
     }
     return meetsWith;
+  }
+
+  private showAgeRangeOfDates() {
+    this.participants.value.forEach((person) => {
+      const myDates = this.findMyDates(person);
+      let lowestAge = 100;
+      let highestAge = 0;
+      myDates
+        .filter((date) => date !== SeatingService.missingPerson)
+        .forEach((date) => {
+          lowestAge = Math.min(date.age, lowestAge);
+          highestAge = Math.max(date.age, highestAge);
+        });
+      person.meetsAgeRange = `${lowestAge} ... ${highestAge}`;
+    });
   }
 
   private assignSeats() {

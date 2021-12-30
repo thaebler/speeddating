@@ -1,6 +1,0 @@
-
-- missingPerson --> null?
-- Ausnahmen:
-    - Paare die sich treffen sollen
-
-- für jede Person den altersrange seiner dates anzeigen
