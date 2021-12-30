@@ -186,24 +186,33 @@ export class ParticipantsComponent implements AfterViewInit {
     const participants: Participant[] = [];
     const nogoRules: Record<string, string[]> = {};
     rows.forEach((row) => {
-      const cells = row.split('\t');
-      if (cells.length < 5 || cells.length > 6) {
+      const cells = row.split(/;|\t/);
+      if (cells.length < 5) {
         throw new Error(`Wrong format`);
       }
+      const firstName = cells[0].trim();
+      const lastName = cells[1].trim();
       const nickName = cells[2].trim();
+      const age = cells[3].trim();
+      const gender = cells[4].trim();
       const nogoRule = cells[5]?.trim();
+      if (!firstName && !lastName && !nickName && !age && !gender) {
+        // skip this line
+        return;
+      }
       // check that the nicknames are unique:
       if (
+        !nickName ||
         participants.findIndex((person) => person.nickName === nickName) >= 0
       ) {
         throw new Error(`Nicknames must be unique (Nickname: ${nickName})`);
       }
       participants.push({
-        firstName: cells[0].trim(),
-        lastName: cells[1].trim(),
-        nickName: nickName,
-        age: Number(cells[3].trim()),
-        gender: readGender(cells[4].trim()),
+        firstName,
+        lastName,
+        nickName,
+        age: Number(age),
+        gender: readGender(gender),
         startsAtTable: 0,
         nogos: [],
         meetsAgeRange: ''
