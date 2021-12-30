@@ -24,7 +24,7 @@
   "ageDifference": "Altersunterschied",
   "table": "Tisch",
   "break": "Pause",
-  "startsWithBreak": "Start mit Pause",
+  "startsWithBreak": "Startet mit Pause",
   "startsWithBreakThenTable": "Pause, dann Tisch",
   "addNewPersonTitle": "Neuer Teilnehmer",
   "editPersonTitle": "Editiere Teilnehmer",
@@ -46,5 +46,6 @@
   "uniqueNicknameValidationFailed": "Übername ist schon vergeben",
   "meetsAgeRange": "Trifft Alter",
   "clipboardDialogTitle": "Import von Zwischenspeicher",
-  "pasteHereTitle": "Hier einfügen:"
+  "pasteHereTitle": "Hier einfügen:",
+  "exportStartNumbersAction": "Exportiere Startnummern"
 }

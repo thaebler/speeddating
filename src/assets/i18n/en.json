@@ -46,5 +46,6 @@
   "uniqueNicknameValidationFailed": "Nickname is already used",
   "meetsAgeRange": "Meets Age",
   "clipboardDialogTitle": "Import from clipboard",
-  "pasteHereTitle": "Paste here:"
+  "pasteHereTitle": "Paste here:",
+  "exportStartNumbersAction": "Export start numbers"
 }

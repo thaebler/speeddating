@@ -280,4 +280,22 @@ export class ParticipantsComponent implements AfterViewInit {
       }
     });
   }
+
+  exportStartNumbers(): string {
+    const text: string[] = [
+      `${this.translate.instant('nickName')}\t${this.translate.instant(
+        'age'
+      )}\t${this.translate.instant('gender')}\t${this.translate.instant(
+        'startsAtTable'
+      )}`
+    ];
+    this.dataSource.data.forEach((participant) => {
+      text.push(
+        `${participant.nickName}\t${participant.age}\t${
+          participant.gender
+        }\t${this.startsAtTable(participant)}`
+      );
+    });
+    return text.join('\n');
+  }
 }
