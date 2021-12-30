@@ -283,7 +283,9 @@ export class ParticipantsComponent implements AfterViewInit {
 
   exportStartNumbers(): string {
     const text: string[] = [
-      `${this.translate.instant('nickName')}\t${this.translate.instant(
+      `${this.translate.instant('firstName')}\t${this.translate.instant(
+        'lastName'
+      )}\t${this.translate.instant('nickName')}\t${this.translate.instant(
         'age'
       )}\t${this.translate.instant('gender')}\t${this.translate.instant(
         'startsAtTable'
@@ -291,9 +293,11 @@ export class ParticipantsComponent implements AfterViewInit {
     ];
     this.dataSource.data.forEach((participant) => {
       text.push(
-        `${participant.nickName}\t${participant.age}\t${
-          participant.gender
-        }\t${this.startsAtTable(participant)}`
+        `${participant.firstName}\t${participant.lastName}\t${
+          participant.nickName
+        }\t${participant.age}\t${participant.gender}\t${this.startsAtTable(
+          participant
+        )}`
       );
     });
     return text.join('\n');
