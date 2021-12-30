@@ -63,6 +63,12 @@ export class SeatingService {
   };
 
   constructor() {
+    const numberOfDatesString = localStorage.getItem('numberOfDates');
+    if (numberOfDatesString) {
+      this.numberOfDates = new BehaviorSubject<number>(
+        Number(numberOfDatesString)
+      );
+    }
     this.participants.subscribe(() => this.start());
     this.numberOfDates.subscribe(() => this.start());
   }
@@ -91,6 +97,7 @@ export class SeatingService {
       }
       return;
     }
+    localStorage.setItem('numberOfDates', `${this.numberOfDates.value}`);
     const ladiesSortedByAge = this.participants.value
       .filter((p) => p.gender === Gender.Female)
       .sort(sortByAge);
