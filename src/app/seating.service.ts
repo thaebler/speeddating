@@ -299,7 +299,7 @@ export class SeatingService {
           );
           if (!replacement) {
             replacement = potentialReplacements.find(
-              (r) => Math.abs(r.age - nogo.age) <= 1
+              (r) => Math.abs(r.age - nogo.age) <= 3
             );
           }
           if (replacement) {
