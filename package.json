@@ -8,7 +8,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "jest src/app/seating.service.spec.ts",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "release": "npm run dist && rm -rf docs && mv dist/speeddating/ docs/"
   },
   "private": true,
   "dependencies": {

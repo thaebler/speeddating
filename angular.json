@@ -50,7 +50,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/apps/speeddating/"
+              "baseHref": ""
             },
             "development": {
               "buildOptimizer": false,
